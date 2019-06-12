@@ -12,9 +12,11 @@ import com.amazonaws.http.AmazonHttpClient;
 import com.amazonaws.http.AmazonHttpClient.RequestExecutionBuilder;
 import com.amazonaws.http.ExecutionContext;
 import com.amazonaws.http.HttpMethodName;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -29,6 +31,12 @@ public class GettingStarted {
   private static final String OPENBANKING_ENDPOINT = "https://developer-api-testmode.dnb.no";
   private static final String API_KEY_HEADER = "x-api-key";
   private static final String JWT_TOKEN_HEADER = "x-dnbapi-jwt";
+  private static final String CLIENT_ID = "testtesttest123";
+  private static final String CLIENT_ASSERTION_TYPE = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
+  private static final String SCOPE = "currencies";
+  private static final String TOKEN_ENDPOINT = "https://openbank-api.dev.ciam.tech-03.net/as/token.oauth2";
+
+
 
   private static Request createRequest(final HttpMethodName httpMethodName, final String path) {
     final Request request = new DefaultRequest(AWS_SERVICE);
@@ -104,7 +112,38 @@ public class GettingStarted {
     return buildRequest(cardRequest).execute(new ResponseHandlerJSONArray(false));
   }
 
-  public static void main(final String[] args) {
+  public static String getOauth2Token() throws Exception {
+
+   final String requestBody = "grant_type=client_credentials" +
+      "&client_id=" + CLIENT_ID +
+      "&client_assertion="+ JWSigning.getSignedClientAssertion() +
+      "&client_assertion_type=" + CLIENT_ASSERTION_TYPE +
+      "&scope=" + SCOPE;
+
+
+    HttpResponse<JsonNode> response;
+    response = Unirest.post(TOKEN_ENDPOINT)
+      .header("content-type", "application/x-www-form-urlencoded")
+      .body(requestBody)
+      .asJson();
+
+      if(response.getStatus() == 200) {
+        final  JSONObject token  = response.getBody().getObject();
+        return token.getString("access_token");
+      }
+      throw new Exception("Error in getting access token");
+  }
+
+  public static String getOauth2Token2() throws Exception {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+  }
+
+  public static void main(final String[] args) throws Exception {
+
+    final String accessToken = getOauth2Token();
+
     final AWSCredentials awsCredentials = new BasicAWSCredentials(Config.get("CLIENT_ID"), Config.get("CLIENT_SECRET"));
     final AWS4Signer signer = new AWS4Signer();
     signer.setRegionName(AWS_REGION);
