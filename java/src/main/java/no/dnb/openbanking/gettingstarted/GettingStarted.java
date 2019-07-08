@@ -31,10 +31,9 @@ public class GettingStarted {
   private static final String OPENBANKING_ENDPOINT = "https://developer-api-testmode.dnb.no";
   private static final String API_KEY_HEADER = "x-api-key";
   private static final String JWT_TOKEN_HEADER = "x-dnbapi-jwt";
-  private static final String CLIENT_ID = "testtesttest123";
   private static final String CLIENT_ASSERTION_TYPE = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
   private static final String SCOPE = "currencies";
-  private static final String TOKEN_ENDPOINT = "https://openbank-api.dev.ciam.tech-03.net/as/token.oauth2";
+  static final String TOKEN_ENDPOINT = "https://openBank-api.dev.ciam.tech-03.net/as/token.oauth2";
 
 
 
@@ -115,11 +114,10 @@ public class GettingStarted {
   public static String getOauth2Token() throws Exception {
 
    final String requestBody = "grant_type=client_credentials" +
-      "&client_id=" + CLIENT_ID +
+      "&client_id=" + Config.get("CLIENT_ID") +
       "&client_assertion="+ JWSigning.getSignedClientAssertion() +
       "&client_assertion_type=" + CLIENT_ASSERTION_TYPE +
       "&scope=" + SCOPE;
-
 
     HttpResponse<JsonNode> response;
     response = Unirest.post(TOKEN_ENDPOINT)
@@ -127,18 +125,13 @@ public class GettingStarted {
       .body(requestBody)
       .asJson();
 
-      if(response.getStatus() == 200) {
-        final  JSONObject token  = response.getBody().getObject();
-        return token.getString("access_token");
-      }
-      throw new Exception("Error in getting access token");
+    if(response.getStatus() == 200) {
+      final  JSONObject token  = response.getBody().getObject();
+      return token.getString("access_token");
+    }
+    throw new Exception("Error in getting access token");
   }
 
-  public static String getOauth2Token2() throws Exception {
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-  }
 
   public static void main(final String[] args) throws Exception {
 

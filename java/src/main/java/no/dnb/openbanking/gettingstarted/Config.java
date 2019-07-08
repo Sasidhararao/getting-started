@@ -10,8 +10,8 @@ class Config {
   private final static HashMap<String, String> config = new HashMap<>();
 
   static {
-    config.putAll(loadEnvFile(".env"));
-    config.putAll(loadEnvFile("../.env"));
+    config.putAll(loadEnvFile(".env.example"));
+    config.putAll(loadEnvFile("../.env.example"));
   }
 
   static String get(String key) {
