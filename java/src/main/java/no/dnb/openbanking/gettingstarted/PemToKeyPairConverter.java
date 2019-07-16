@@ -8,7 +8,7 @@ import java.io.StringReader;
 import java.security.*;
 
 
-public class PemToJwksConverter {
+public class PemToKeyPairConverter {
 
   public static KeyPair  readKeyPairFromPem() throws Exception {
 

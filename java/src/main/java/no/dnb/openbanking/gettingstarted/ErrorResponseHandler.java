@@ -1,3 +1,4 @@
+/*
 package no.dnb.openbanking.gettingstarted;
 
 import com.amazonaws.AmazonServiceException;
@@ -33,3 +34,4 @@ public class ErrorResponseHandler implements HttpResponseHandler<AmazonServiceEx
     return this.needsConnectionLeftOpen;
   }
 }
+*/

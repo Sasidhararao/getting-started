@@ -3,10 +3,8 @@ package no.dnb.openbanking.gettingstarted;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.amazonaws.Response;
-import com.amazonaws.auth.AWS4Signer;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,34 +13,30 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 public class GettingStartedIntegrationTest {
 
-  private static final String AWS_REGION = "eu-west-1";
-  private static final String AWS_SERVICE = "execute-api";
-  private static final AWSCredentials awsCredentials = new BasicAWSCredentials(Config.get("CLIENT_ID"), Config.get("CLIENT_SECRET"));
-  private static final AWS4Signer signer = new AWS4Signer();
-  private static String jwtToken;
+  private static String accessToken;
 
   @BeforeAll
-  static void initAll() {
-    signer.setRegionName(AWS_REGION);
-    signer.setServiceName(AWS_SERVICE);
-    jwtToken = GettingStarted.getApiToken(signer, awsCredentials);
+  static void initAll() throws Exception {
+
+    accessToken = GettingStarted.getOauth2Token();
   }
 
   @Test
   void testGetApiToken() {
-    assertTrue(jwtToken.length() > 500);
+    assertTrue(accessToken.length() > 500);
   }
 
+  //JSONArray
   @Test
-  void testGetTestCustomersInfoAPI() {
+  void testGetTestCustomersInfoAPI() throws Exception {
     JSONArray expectedTestCustomersResponse = TestUtil.parseJSONFileFromResourceToJSONArray(
         "GetTestCustomers.json");
-    Response<JSONArray> actualTestCustomersResponse = GettingStarted.getTestCustomers();
+    HttpResponse<JsonNode> actualTestCustomersResponse = GettingStarted.getTestCustomers(accessToken);
 
-    assertThat(actualTestCustomersResponse.getHttpResponse().getStatusCode())
+    assertThat(actualTestCustomersResponse.getStatus())
         .as("Test if status code is 200/OK").isEqualTo(200);
 
-    JSONArray actualTestCustomersJSONResponse = actualTestCustomersResponse.getAwsResponse();
+    JSONArray actualTestCustomersJSONResponse = actualTestCustomersResponse.getBody().getArray();
 
     assertThat(actualTestCustomersJSONResponse.length())
         .as("Check if objects have same amount of fields")
@@ -51,15 +45,15 @@ public class GettingStartedIntegrationTest {
   }
 
   @Test
-  void testGetCustomerInfoAPI() {
+  void testGetCustomerInfoAPI() throws Exception{
     JSONObject expectedCustomerDetailsResponse = TestUtil.parseJSONFileFromResourceToJSONObject(
             "GetCustomerDetails.json");
-    Response<JSONObject> actualCustomerDetailsResponse = GettingStarted.getCustomerInfo(jwtToken);
+    HttpResponse<JsonNode> actualCustomerDetailsResponse = GettingStarted.getCustomerInfo(accessToken);
 
-    assertThat(actualCustomerDetailsResponse.getHttpResponse().getStatusCode())
+    assertThat(actualCustomerDetailsResponse.getStatus())
             .as("Test if status code is 200/OK").isEqualTo(200);
 
-    JSONObject actualCustomerDetailsJSONResponse = actualCustomerDetailsResponse.getAwsResponse();
+    JSONObject actualCustomerDetailsJSONResponse = actualCustomerDetailsResponse.getBody().getObject();
 
     assertThat(actualCustomerDetailsJSONResponse.length())
             .as("Check if objects have same amount of fields")
@@ -68,15 +62,15 @@ public class GettingStartedIntegrationTest {
   }
 
   @Test
-  void testGetCardInfoAPI() {
+  void testGetCardInfoAPI() throws Exception {
     JSONArray expectedCardDetailsResponse = TestUtil.parseJSONFileFromResourceToJSONArray(
             "GetCardDetails.json");
-    Response<JSONArray> actualCardDetailsResponse = GettingStarted.getCardInfo(jwtToken);
+    HttpResponse<JsonNode>  actualCardDetailsResponse = GettingStarted.getCardInfo(accessToken);
 
-    assertThat(actualCardDetailsResponse.getHttpResponse().getStatusCode())
+    assertThat(actualCardDetailsResponse.getStatus())
             .as("Test if status code is 200/OK").isEqualTo(200);
 
-    JSONArray actualCardDetailsJSONResponse = actualCardDetailsResponse.getAwsResponse();
+    JSONArray actualCardDetailsJSONResponse = actualCardDetailsResponse.getBody().getArray();
 
     assertThat(actualCardDetailsJSONResponse.length())
             .as("Check if objects have same amount of fields")
@@ -85,15 +79,15 @@ public class GettingStartedIntegrationTest {
   }
 
   @Test
-  void testGetCurrencyConversions() {
+  void testGetCurrencyConversions() throws Exception {
     JSONArray expectedCardDetailsResponse = TestUtil.parseJSONFileFromResourceToJSONArray(
         "GetCurrencyConversions.json");
-    Response<JSONArray> actualCardDetailsResponse = GettingStarted.getCurrencyConversions("NOK");
+    HttpResponse<JsonNode> actualCardDetailsResponse = GettingStarted.getCurrencyConversions("NOK",accessToken);
 
-    assertThat(actualCardDetailsResponse.getHttpResponse().getStatusCode())
+    assertThat(actualCardDetailsResponse.getStatus())
         .as("Test if status code is 200/OK").isEqualTo(200);
 
-    JSONArray actualCardDetailsJSONResponse = actualCardDetailsResponse.getAwsResponse();
+    JSONArray actualCardDetailsJSONResponse = actualCardDetailsResponse.getBody().getArray();
 
     assertThat(actualCardDetailsJSONResponse.length())
         .as("Check if objects have same amount of fields")
@@ -102,15 +96,15 @@ public class GettingStartedIntegrationTest {
   }
 
   @Test
-  void testGetCurrencyConversion() {
+  void testGetCurrencyConversion() throws Exception{
     JSONObject expectedCustomerDetailsResponse = TestUtil.parseJSONFileFromResourceToJSONObject(
         "GetCurrencyConversion.json");
-    Response<JSONObject> response = GettingStarted.getCurrencyConversion("NOK", "EUR");
+    HttpResponse<JsonNode> response = GettingStarted.getCurrencyConversion("NOK", "EUR",accessToken);
 
-    assertThat(response.getHttpResponse().getStatusCode())
+    assertThat(response.getStatus())
         .as("Test if status code is 200/OK").isEqualTo(200);
 
-    JSONObject json = response.getAwsResponse();
+    JSONObject json = response.getBody().getObject();
 
     assertThat(json.length())
         .as("Check if objects have same amount of fields")

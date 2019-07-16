@@ -43,11 +43,6 @@
       <version>20180813</version>
     </dependency>
     <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk</artifactId>
-      <version>1.11.399</version>
-    </dependency>
-    <dependency>
       <groupId>org.bitbucket.b_c</groupId>
       <artifactId>jose4j</artifactId>
       <version>0.3.7</version>
