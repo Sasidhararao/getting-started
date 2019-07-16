@@ -11,8 +11,8 @@ following variables set.
 
 ```
 CLIENT_ID=
-CLIENT_SECRET=
-API_KEY=
+JWS_ALGORITHM=
+SIGNING_KEYS_PEM=
 ```
 
 After adding the credentials you can run the example with
